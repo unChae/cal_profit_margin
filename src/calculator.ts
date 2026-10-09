@@ -2,7 +2,7 @@ export const defaults = {
   tickets:80, ticketYen:850, manualLot:false, lotYen:68000, lots:1, batch:1, exchange:850,
   shipping:'air' as 'air'|'sea', domestic:22355, air:60000, sea:25000, manualFreight:false, freightTotal:60000,
   clearance:30000, shippingOther:0, dutyRate:8, importVatRate:10, salesVatRate:10,
-  feeRate:6.4, importCredit:true, feeIncludesVat:true, feeCredit:false, feeVatRate:10,
+  feeRate:6.4, importCredit:true, feeIncludesVat:false, feeCredit:false, feeVatRate:10,
   localDelivery:0, other:0, manualCustoms:false, customsValue:660355, price:16000,
 };
 export type Settings = typeof defaults;
