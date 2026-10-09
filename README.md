@@ -13,6 +13,12 @@ npm run build
 
 `dist` 폴더를 정적 웹 호스팅에 배포할 수 있습니다.
 
+## GitHub Pages 배포
+
+저장소 Settings → Pages → Build and deployment → Source를 **GitHub Actions**로 선택합니다. 추가한 파일을 커밋하고 `main`에 push하면 `.github/workflows/deploy.yml`이 테스트, 빌드 및 `dist` 배포를 실행합니다. Actions에서 성공 여부를 확인한 뒤 https://unchae.github.io/cal_profit_margin/ 에 접속하세요.
+
+`vite.config.ts`의 `base`는 `/cal_profit_margin/`입니다. 저장소 이름이나 배포 경로를 바꾸면 이 설정도 변경해야 합니다. 원본 소스의 `index.html`을 브랜치 배포로 게시하면 TypeScript 앱이 실행되지 않습니다.
+
 ## 계산 기준
 
 중간 계산은 반올림하지 않고 화면에 표시할 때 금액을 원 단위, 마진율을 소수점 둘째 자리로 반올림합니다. 수입부가세와 수수료 부가세는 납부액과 원가 반영액을 구분합니다. 추가 배송·통관 비용, 한국 포장·배송 비용 및 기타 비용은 전체 구매·판매의 총액입니다. 과세가격 직접 입력 역시 전체 구매 기준 총액입니다.
