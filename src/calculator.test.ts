@@ -7,3 +7,27 @@ test('batch shipment rounds up and supports total override',()=>{assert.equal(ca
 test('sea and manual purchase/customs',()=>{const r=calculate({...defaults,shipping:'sea',manualLot:true,lotYen:50000,manualCustoms:true,customsValue:500000});assert.equal(r.purchase,425000);assert.equal(r.freight,25000);assert.equal(r.duty,40000);assert.equal(r.importVat,54000);});
 test('input VAT credit and platform fee VAT choices',()=>{const base=calculate(defaults);const noCredit=calculate({...defaults,importCredit:false});assert.ok(Math.abs(base.profit-noCredit.profit-base.importVat)<1e-8);const credit=calculate({...defaults,feeCredit:true});assert.ok(Math.abs(credit.feeCost-base.feePaid/1.1)<1e-8);const exclusive=calculate({...defaults,feeIncludesVat:false});assert.equal(exclusive.feeCost,90112);assert.equal(calculate({...defaults,feeIncludesVat:false,feeCredit:true}).feeCost,81920);});
 test('price table bounds and zero revenue',()=>{assert.equal(prices.length,19);assert.equal(prices[0],10000);assert.equal(prices.at(-1),19000);assert.equal(calculate({...defaults,price:0}).margin,0);assert.ok(Number.isFinite(calculate({...defaults,price:0}).profit));});
+
+test('partial sales at 17000 keep full purchase costs and scale fees',()=>{
+  const full=calculate({...defaults,price:17000});
+  const partial=calculate({...defaults,price:17000,soldTickets:40});
+  assert.equal(partial.gross,680000);
+  assert.equal(partial.soldTickets,40);
+  assert.equal(partial.purchase,full.purchase);
+  assert.equal(partial.freight,full.freight);
+  assert.equal(partial.feePaid,full.feePaid/2);
+  assert.ok(Math.abs((partial.cost-partial.feeCost)-(full.cost-full.feeCost))<1e-8);
+  assert.ok(Math.abs(partial.profit-(680000/1.1-partial.cost))<1e-8);
+});
+test('zero, full and bounded sales quantities',()=>{
+  const zero=calculate({...defaults,soldTickets:0});
+  assert.equal(zero.gross,0);
+  assert.equal(zero.feePaid,0);
+  assert.equal(zero.profit,-zero.cost);
+  assert.equal(zero.margin,0);
+  assert.deepEqual(calculate({...defaults,soldTickets:80}),calculate(defaults));
+  assert.equal(calculate({...defaults,soldTickets:100}).soldTickets,80);
+  assert.equal(calculate({...defaults,soldTickets:-1}).soldTickets,0);
+  assert.equal(calculate({...defaults,lots:2}).soldTickets,160);
+  assert.equal(calculate({...defaults,lots:2,soldTickets:100}).gross,1600000);
+});

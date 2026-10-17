@@ -3,7 +3,7 @@ export const defaults = {
   shipping:'air' as 'air'|'sea', domestic:22355, air:60000, sea:25000, manualFreight:false, freightTotal:60000,
   clearance:30000, shippingOther:0, dutyRate:8, importVatRate:10, salesVatRate:10,
   feeRate:6.4, importCredit:true, feeIncludesVat:false, feeCredit:false, feeVatRate:10,
-  localDelivery:0, other:0, manualCustoms:false, customsValue:660355, price:16000,
+  localDelivery:0, other:0, manualCustoms:false, customsValue:660355, price:16000, soldTickets:null as number|null,
 };
 export type Settings = typeof defaults;
 // All arithmetic retains precision; only displayed KRW amounts are rounded to whole won.
@@ -17,7 +17,9 @@ export function calculate(s:Settings, price=s.price) {
   const importVat=(customs+duty)*s.importVatRate/100;
   const importCost=s.importCredit?0:importVat;
   const clearance=s.clearance*shipments;
-  const gross=s.tickets*s.lots*price;
+  const totalTickets=s.tickets*s.lots;
+  const soldTickets=s.soldTickets===null?totalTickets:Math.min(totalTickets,Math.max(0,Math.floor(s.soldTickets)));
+  const gross=soldTickets*price;
   const net=gross/(1+s.salesVatRate/100);
   const feeBase=gross*s.feeRate/100;
   const feeNet=s.feeIncludesVat?feeBase/(1+s.feeVatRate/100):feeBase;
@@ -27,6 +29,6 @@ export function calculate(s:Settings, price=s.price) {
   const other=s.shippingOther+s.localDelivery+s.other;
   const cost=purchase+domestic+freight+duty+importCost+clearance+feeCost+other;
   const profit=net-cost;
-  return {shipments,purchase,domestic,freight,customs,duty,importVat,importCost,clearance,gross,net,salesVat:gross-net,feePaid,feeVat,feeCost,other,cost,profit,margin:net===0?0:profit/net*100,lotProfit:profit/s.lots};
+  return {totalTickets,soldTickets,shipments,purchase,domestic,freight,customs,duty,importVat,importCost,clearance,gross,net,salesVat:gross-net,feePaid,feeVat,feeCost,other,cost,profit,margin:net===0?0:profit/net*100,lotProfit:profit/s.lots};
 }
 export const prices=Array.from({length:19},(_,i)=>10000+i*500);
